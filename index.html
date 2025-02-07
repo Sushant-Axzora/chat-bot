@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <button onclick="fetchChat()">test</button>
+    <p id="res"></p>
+    <script>
+        const fetchChat = async (message) => {
+            const res = await fetch({
+                method: 'post',
+                url: 'http://10.201.10.102:3001/api/v1/workspace/axzora-chats/stream-chat',
+                headers: { 'authorization': 'Bearer Y116JBZ-GWTMY73-GR7EC8H-DDTA3WR' },
+                data: {
+                    message: "What is AnythingLLM?",
+                    mode: "chat",
+
+                }
+            }).then((response) => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                    console.log(decoder);
+                    
+                const processStream = () => {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            console.log("Stream ended");
+                            return;
+                        }
+
+                        const chunk = decoder.decode(value, { stream: true });
+                        console.log("New Chat Message Chunk:", chunk);
+
+                        processStream(); // Continue reading the next chunk
+                    });
+                };
+
+                processStream();
+            })
+                .catch((error) => {
+                    console.error("Stream error:", error);
+                });
+            ;
+            console.log(res);
+            if (res.status == 200) {
+                // const {textResponse} =res.data
+                // const para = document.getElementById("res");
+                // para.innerText = textResponse
+            }
+
+
+
+
+        }
+
+    </script>
+</body>
+
+</html>
